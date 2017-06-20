@@ -1,6 +1,10 @@
 #ifndef _UNION_FIND_ADAPTER__
 #define _UNION_FIND_ADAPTER__
 
+#include <cstdint>
+#include <memory>
+#include <iostream>
+
 #if (defined(__GNUC__) && __GNUC__) || (defined(__clang__) && __clang__)
 #define PACKED __attribute__((packed))
 #else
@@ -9,15 +13,25 @@
 
 namespace ufa {
 
-// Converts any primitive into
+// Converts any primitive into a struct with the same performance/attributes.
+// Also requests uninitialized storage.
 template<typename J>
 struct Classified {
     J i;
     operator       J&()       {return i;}
     operator const J&() const {return i;}
 
-    Classified<J>() {}
-    template<typename T> Classified<J>(T j): i(j) {}
+    Classified<J>() {
+        static_assert(std::is_standard_layout<Classified<J>>::value && sizeof(J) == sizeof(Classified<J>), "J does not have standard layout");
+#if !NDEBUG
+        std::cerr << "Creating with default constructor. Value: " << i << '\n';
+#endif
+    }
+    template<typename T> Classified<J>(T j): i(j) {
+#if !NDEBUG
+        std::cerr << "Creating with templated constructor. Value: " << i << '\n';
+#endif
+    }
 };
 
 using Double   = Classified<double>;
@@ -25,16 +39,16 @@ using Float    = Classified<float>;
 using Char     = Classified<char>;
 using Short    = Classified<short>;
 using Int      = Classified<int>;
-using Uint8_t  = Classified<uint8_t>;
-using Uint16_t = Classified<uint16_t>;
-using Uint32_t = Classified<uint32_t>;
-using Uint64_t = Classified<uint64_t>;
-using Int8_t   = Classified<int8_t>;
-using Int16_t  = Classified<int16_t>;
-using Int32_t  = Classified<int32_t>;
-using Int64_t  = Classified<int64_t>;
-using Uint64_t = Classified<uint64_t>;
-using Size_t   = Classified<size_t>;
+using Uint8_t  = Classified<std::uint8_t>;
+using Uint16_t = Classified<std::uint16_t>;
+using Uint32_t = Classified<std::uint32_t>;
+using Uint64_t = Classified<std::uint64_t>;
+using Int8_t   = Classified<std::int8_t>;
+using Int16_t  = Classified<std::int16_t>;
+using Int32_t  = Classified<std::int32_t>;
+using Int64_t  = Classified<std::int64_t>;
+using Uint64_t = Classified<std::uint64_t>;
+using Size_t   = Classified<std::size_t>;
 using Voidptr  = Classified<void*>;
 
 // For composition
