@@ -10,18 +10,18 @@
 namespace ufa {
 
 // For composition
-template<typename Class, typename size_type=std::uint8_t>
-struct uf_adapter: public Class {
+template<typename T, typename size_type=std::uint8_t>
+struct uf_adapter: public T {
     size_type      r_;
     uf_adapter    *p_;
     template<typename... Args>
     uf_adapter(Args&&... args):
-        Class(std::forward<Args...>(args)...), r_{0}, p_{this} {}
+        T(std::forward<Args...>(args)...), r_{0}, p_{this} {}
 } PACKED;
 
 template<typename T>
 T *find(T *node) {
-    if(node->p_ != node) node->p_ = find(node->p_); return node->p_;
+    return node->p_ == node ? node: (node->p_ = find(node->p_));
 }
 
 template<typename T>
