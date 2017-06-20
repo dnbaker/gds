@@ -55,9 +55,10 @@ public:
 
     void perform_union(size_type ai, size_type bi) {
         if(ai == bi) return;
-        if(v_[ai].r_ < v_[bi].r_) v_[ai].p_ = bi;
-        if(v_[ai].r_ > v_[bi].r_) v_[bi].p_ = ai;
-        else v_[ai].p_ = bi, --n_[v_[ai].r_], ++n_[++v_[bi].r_];
+        if     (v_[ai].r_ < v_[bi].r_) v_[ai].p_ = bi;
+        else if(v_[ai].r_ > v_[bi].r_) v_[bi].p_ = ai;
+        else                           v_[ai].p_ = bi,
+                                       --n_[v_[ai].r_], ++n_[++v_[bi].r_];
     }
 
     void perform_union(ufnode_t &a, ufnode_t &b) {
