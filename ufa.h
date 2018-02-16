@@ -5,10 +5,12 @@
 #include <memory>
 #include <iostream>
 
-#if (defined(__GNUC__) && __GNUC__) || (defined(__clang__) && __clang__)
-#define PACKED __attribute__((packed))
+#ifdef USE_PACKED
+#  if (defined(__GNUC__) && __GNUC__) || (defined(__clang__) && __clang__)
+#    define PACKED __attribute__((packed))
+#  endif
 #else
-#define PACKED
+#  define PACKED
 #endif
 
 namespace ufa {
