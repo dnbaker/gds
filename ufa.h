@@ -14,6 +14,9 @@
 #endif
 
 namespace ufa {
+/*
+ Union-Find Adapter
+*/
 
 // Converts any primitive into a struct with the same performance/attributes.
 // Also requests uninitialized storage.
