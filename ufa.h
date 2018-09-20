@@ -51,21 +51,16 @@ using Voidptr  = Classified<void*>;
 
 // For composition
 template<typename Class, typename size_type=std::uint8_t>
-struct uf_adapter: Class {
+struct uf_adapter: public Class {
     vpr::valptr<uf_adapter, std::uint32_t, vpr::DoNothingFunctor<Class>> p_;
     uf_adapter *p() {return p_.get();}
     size_type rank() const {return p_.val();}
     auto setp(uf_adapter *p) {return p_.setp(p);}
-    auto setr(size_type r) {
-        std::fprintf(stderr, "rank is %u. New rank should be %u\n", rank(), p_.setval(r));
-        return p_.setval(r);
-    }
+    auto setr(size_type r) {return p_.setval(r);}
 
     template<typename... Args>
     uf_adapter(Args&&... args):
-        Class(std::forward<Args>(args)...), p_{0, this} {
-        std::fprintf(stderr, "new thing has rank %u\n", rank());
-    }
+        Class(std::forward<Args>(args)...), p_{0, this} {}
     Class &ref()       {return *reinterpret_cast<Class *>(this);}
     const Class &ref() const {return *reinterpret_cast<const Class *>(this);}
 };
@@ -77,7 +72,7 @@ const T *find(const T *node) {
 
 template<typename T>
 T *find(T *node) {
-    for(T *prev;node->p() != node;prev = node->p(), node->setp(prev->p()), prev->setp(node->p()));
+    for(T *next;node->p() != node; next = node->p(), node->setp(next->p()), node = next);
     return node;
 }
 
