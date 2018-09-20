@@ -4,14 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <iostream>
-
-#ifdef USE_PACKED
-#  if (defined(__GNUC__) && __GNUC__) || (defined(__clang__) && __clang__)
-#    define PACKED __attribute__((packed))
-#  endif
-#else
-#  define PACKED
-#endif
+#include "valptr/valptr.h"
 
 namespace ufa {
 /*
@@ -58,29 +51,45 @@ using Voidptr  = Classified<void*>;
 
 // For composition
 template<typename Class, typename size_type=std::uint8_t>
-struct uf_adapter: public Class {
-    size_type      r_;
-    uf_adapter    *p_;
+struct uf_adapter: Class {
+    vpr::valptr<uf_adapter, std::uint32_t, vpr::DoNothingFunctor<Class>> p_;
+    uf_adapter *p() {return p_.get();}
+    size_type rank() const {return p_.val();}
+    auto setp(uf_adapter *p) {return p_.setp(p);}
+    auto setr(size_type r) {
+        std::fprintf(stderr, "rank is %u. New rank should be %u\n", rank(), p_.setval(r));
+        return p_.setval(r);
+    }
 
     template<typename... Args>
     uf_adapter(Args&&... args):
-        Class(std::forward<Args>(args)...), r_{0}, p_{this} {}
-} PACKED;
+        Class(std::forward<Args>(args)...), p_{0, this} {
+        std::fprintf(stderr, "new thing has rank %u\n", rank());
+    }
+    Class &ref()       {return *reinterpret_cast<Class *>(this);}
+    const Class &ref() const {return *reinterpret_cast<const Class *>(this);}
+};
 
 template<typename T>
-T *find(T *node) {
-    return node->p_ == node ? node: (node->p_ = find(node->p_));
+const T *find(const T *node) {
+    return find(const_cast<T *>(node));
 }
 
 template<typename T>
-T *find(T &node) {return find(std::addressof(node));}
+T *find(T *node) {
+    for(T *prev;node->p() != node;prev = node->p(), node->setp(prev->p()), prev->setp(node->p()));
+    return node;
+}
+
+template<typename T> T *find(T &node) {return find(std::addressof(node));}
+template<typename T> const T *find(const T &node) {return find(std::addressof(node));}
 
 template<typename T>
 void perform_union(T *a, T *b) {
     if((a = find(a)) == (b = find(b))) return;
-    if     (a->r_ < b->r_) b->p_ = a;
-    else if(b->r_ < b->r_) a->p_ = b;
-    else          b->p_ = a, ++a->r_;
+    if     (a->rank() < b->rank()) b->setp(a);
+    else if(b->rank() < b->rank()) a->setp(b);
+    else   b->setp(a), a->setr(a->rank() + 1);
 }
 
 template<typename T>

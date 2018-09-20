@@ -15,8 +15,8 @@ template<typename T, typename size_type=std::uint32_t, typename rank_type=std::u
 class DisjointSetVector {
     struct ufnode_t {
         T         e_; // element
-        rank_type r_; // rank of element
         size_type p_; // parent
+        rank_type r_; // rank of element
         template<typename... Args>
         ufnode_t(size_type index, Args&&... args):
             e_(std::forward<T>(args)...), p_(index), r_{0} {
@@ -30,13 +30,10 @@ public:
 #if NDEBUG
 public:
 #endif
-    size_type find(ufnode_t &node) {
-        const size_type index(&node - v_.data());
-        return find(&node - v_.data());
-    }
-    size_type find(size_type index) {
-        if(v_[index].p_ == index) v_[index].p_ = find(v_[v_[index].p_]);
-        return v_[index].p_;
+    size_type find(ufnode_t &node) {return find(&node - v_.data());}
+    size_type find(size_type ind) {
+        for(size_type i; v_[ind].p_ != ind; i = v_[ind].p_, v_[ind].p_ = v_[i].p_);
+        return ind;
     }
 
     template<typename... Args>
