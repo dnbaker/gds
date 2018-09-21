@@ -61,14 +61,17 @@ struct uf_adapter: public Class {
     template<typename... Args>
     uf_adapter(Args&&... args):
         Class(std::forward<Args>(args)...), p_{0, this} {}
+    uf_adapter(const uf_adapter &) = delete;
+    uf_adapter &operator=(const uf_adapter &) = delete;
+    uf_adapter(uf_adapter &&o) {
+        std::memcpy(this, &o, sizeof(*this));
+        if(p() == &o)
+            setp(this); // Set itself to be its parent
+        std::memset(&o, 0, sizeof(o));
+    }
     Class &ref()       {return *reinterpret_cast<Class *>(this);}
     const Class &ref() const {return *reinterpret_cast<const Class *>(this);}
 };
-
-template<typename T>
-const T *find(const T *node) {
-    return find(const_cast<T *>(node));
-}
 
 template<typename T>
 T *find(T *node) {
