@@ -16,7 +16,7 @@ class DisjointSetVector {
     struct ufnode_t {
         T         e_; // element
         size_type p_; // parent
-        rank_type r_; // rank of element
+        size_type r_:3; // rank of element
         template<typename... Args>
         ufnode_t(size_type index, Args&&... args):
             e_(std::forward<T>(args)...), p_(index), r_{0} {
@@ -56,6 +56,9 @@ public:
         else if(v_[ai].r_ > v_[bi].r_) v_[bi].p_ = ai;
         else                           v_[ai].p_ = bi,
                                        --n_[v_[ai].r_], ++n_[++v_[bi].r_];
+    }
+    void shrink_to_fit() {
+        v_.shrink_to_fit();
     }
 
     void perform_union(ufnode_t &a, ufnode_t &b) {
