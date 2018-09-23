@@ -18,36 +18,38 @@ struct Classified {
     J i;
     operator       J&()       {return i;}
     operator const J&() const {return i;}
+    J val()                   {return i;}
 
     Classified<J>() {
         static_assert(std::is_standard_layout<Classified<J>>::value && sizeof(J) == sizeof(Classified<J>), "J does not have standard layout");
-#if !NDEBUG
-        std::cerr << "Creating with default constructor. Value: " << i << '\n';
-#endif
     }
-    template<typename T> Classified<J>(T j): i(j) {
-#if !NDEBUG
-        std::cerr << "Creating with templated constructor. Value: " << i << '\n';
-#endif
-    }
+    template<typename T> Classified<J>(T j): i(j) {}
 };
 
-using Double   = Classified<double>;
-using Float    = Classified<float>;
-using Char     = Classified<char>;
-using Short    = Classified<short>;
-using Int      = Classified<int>;
-using Uint8_t  = Classified<std::uint8_t>;
-using Uint16_t = Classified<std::uint16_t>;
-using Uint32_t = Classified<std::uint32_t>;
-using Uint64_t = Classified<std::uint64_t>;
-using Int8_t   = Classified<std::int8_t>;
-using Int16_t  = Classified<std::int16_t>;
-using Int32_t  = Classified<std::int32_t>;
-using Int64_t  = Classified<std::int64_t>;
-using Uint64_t = Classified<std::uint64_t>;
-using Size_t   = Classified<std::size_t>;
-using Voidptr  = Classified<void*>;
+using Double     = Classified<double>;
+using LongDouble = Classified<long double>;
+using Float      = Classified<float>;
+using Char       = Classified<char>;
+using Short      = Classified<short>;
+using Int        = Classified<int>;
+using Long       = Classified<long>;
+using LongLong   = Classified<long long>;
+using UChar       = Classified<unsigned char>;
+using UShort      = Classified<unsigned short>;
+using UInt        = Classified<unsigned int>;
+using ULong       = Classified<unsigned long>;
+using ULongLong   = Classified<unsigned long long>;
+using Uint8_t    = Classified<std::uint8_t>;
+using Uint16_t   = Classified<std::uint16_t>;
+using Uint32_t   = Classified<std::uint32_t>;
+using Uint64_t   = Classified<std::uint64_t>;
+using Int8_t     = Classified<std::int8_t>;
+using Int16_t    = Classified<std::int16_t>;
+using Int32_t    = Classified<std::int32_t>;
+using Int64_t    = Classified<std::int64_t>;
+using Uint64_t   = Classified<std::uint64_t>;
+using Size_t     = Classified<std::size_t>;
+using Voidptr    = Classified<void*>;
 
 // For composition
 template<typename Class, typename size_type=std::uint8_t>

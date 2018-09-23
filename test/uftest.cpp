@@ -39,5 +39,7 @@ int main() {
     Int I1{-4}, I2{-1};
     cerr << "Int value from -1: " << (int)I2 << '\n';
     I2 += 4;
-    cerr << "Int value from -1 with 4 added: " << (int)I2 << '\n';
+    cerr << "Int value from -1 with 4 added: " << I2 << '\n';
+    Double d = 4.;
+    std::fprintf(stderr, "Double: %lf\n", d.val());
 }
